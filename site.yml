@@ -39,7 +39,7 @@
         user: trader
         state: present
         key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_ed25519.pub') }}"
-    - name: Install the Google Authetiator PAM module
+    - name: Install the Google Authenticator PAM module
       apt:
         name: libpam-google-authenticator
         update_cache: yes
@@ -60,15 +60,17 @@
       lineinfile:
         path: /etc/ssh/sshd_config
         regexp: '^#KbdInteractiveAuthentication'
-        line: "KbdinteractiveAuthentication yes"
+        line: "KbdInteractiveAuthentication yes"
       notify: Restart SSH
     - name: Require key AND code for trader only
       blockinfile:
         path: /etc/ssh/sshd_config
         marker: "# {mark} TRADER 2FA"
+        insertafter: EOF
         block: |
           Match User trader
             AuthenticationMethods publickey,keyboard-interactive
+        validate: /usr/sbin/sshd -t -f %s
       notify: Restart SSH
     - name: Install a sudoers policy for the developers group
       copy:
