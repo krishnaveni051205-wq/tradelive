@@ -1,4 +1,4 @@
- ---
+---
 - name: Deploy the Greeting application
   hosts: tradelive
   become: yes
